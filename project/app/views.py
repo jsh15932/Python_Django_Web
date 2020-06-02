@@ -1,10 +1,17 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
+from django.core.paginator import Paginator
 from .models import Blog
+from .forms import BlogUpdate
 
 def home(request):
     blogs = Blog.objects.order_by('-id')
-    return render(request, 'home.html', {'blogs': blogs})
+    blog_list = Blog.objects.all().order_by('-id')
+    paginator = Paginator(blog_list, 3)
+    page = request.GET.get('page')
+    posts = paginator.get_page(page)
+
+    return render(request, 'home.html', {'blogs': blogs, 'posts': posts})
 
 def detail(request, blog_id):
     blog_detail = get_object_or_404(Blog, pk=blog_id)
@@ -29,7 +36,7 @@ def update(request, blog_id):
         if form.is_valid():
             blog.title = form.cleaned_data['title']
             blog.body = form.cleaned_data['body']
-            blog.pub_date=timezone.now()
+            blog.pub_date = timezone.now()
             blog.save()
             return redirect('/app/detail/' + str(blog.id))
     else:
