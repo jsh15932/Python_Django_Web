@@ -34,6 +34,11 @@ def update(request, blog_id):
     else:
         return render(request, 'update.html')
 
+def delete(request, blog_id):
+    blog = Blog.objects.get(id=blog_id)
+    blog.delete()
+    return redirect('/')
+
 def new(request):
     full_text = request.GET['fulltext']
 
